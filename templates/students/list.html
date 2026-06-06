@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block title %}Élèves{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">{{ total }} élève{{ total|pluralize }}</span>
+    <h1>Élèves</h1>
+  </div>
+  {% if user.role == 'admin' %}
+  <div>
+    <a href="{% url 'students:create' %}" class="btn">＋ Créer un élève</a>
+    <a href="{% url 'students:bulk_import' %}" class="btn btn-secondary">Import en masse</a>
+  </div>
+  {% endif %}
+</div>
+
+<div class="card card-flat">
+  <form method="get" style="display:flex; flex-wrap:wrap; gap:.75rem; align-items:end;">
+    <div>
+      <label for="id_q">Recherche</label>
+      {{ form.q }}
+    </div>
+    <div>
+      <label for="id_level">Niveau</label>
+      {{ form.level }}
+    </div>
+    <div>
+      <label for="id_class_name">Classe</label>
+      {{ form.class_name }}
+    </div>
+    <button type="submit" class="btn">🔍 Filtrer</button>
+    {% if request.GET %}<a href="{% url 'students:list' %}" class="btn btn-ghost">Réinitialiser</a>{% endif %}
+  </form>
+</div>
+
+<table>
+  <tr>
+    <th>Code</th><th>Nom</th><th>Classe</th><th>Niveau</th>
+    {% if user.role == 'admin' %}<th>Famille</th>{% endif %}
+  </tr>
+  {% for s in students %}
+  <tr>
+    <td>{{ s.internal_code }}</td>
+    <td><a href="{% url 'students:detail' s.pk %}">{{ s.last_name }} {{ s.first_name }}</a></td>
+    <td>{{ s.class_name }}</td>
+    <td>{{ s.get_level_display }}</td>
+    {% if user.role == 'admin' %}
+    <td>{% if s.parent_email %}✓ {{ s.parent_email }}{% else %}—{% endif %}</td>
+    {% endif %}
+  </tr>
+  {% empty %}
+  <tr><td colspan="5"><em>Aucun élève trouvé.</em></td></tr>
+  {% endfor %}
+</table>
+
+{% if page.has_other_pages %}
+<div class="pagination">
+  {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">← Précédent</a>
+  {% endif %}
+  <span class="current">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Suivant →</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

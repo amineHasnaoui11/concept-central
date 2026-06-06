@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Compte créé{% endblock %}
+{% block content %}
+<h1>✅ Compte créé</h1>
+<div class="card">
+  <p>Compte de connexion créé pour :</p>
+  <p><strong>{{ student.first_name }} {{ student.last_name }}</strong></p>
+</div>
+
+<div class="card" style="border-color: var(--coral); background: var(--peach);">
+  <h2 style="margin-top:0;">🔐 Identifiants — à transmettre à l'élève</h2>
+  <p>⚠️ <strong>Ces informations ne seront plus affichées.</strong> Notez-les maintenant.</p>
+
+  <div style="background:#fff; padding:1.5rem; border:2px solid var(--ink); border-radius:.5rem; margin: 1rem 0;">
+    <p style="font-family:monospace; font-size:1.1rem; margin:.5rem 0;">
+      <strong>Identifiant :</strong> <code id="username">{{ user.username }}</code>
+    </p>
+    <p style="font-family:monospace; font-size:1.1rem; margin:.5rem 0;">
+      <strong>Mot de passe :</strong> <code id="password">{{ password }}</code>
+    </p>
+  </div>
+
+  <button onclick="copyAll()" class="btn btn-secondary">📋 Copier les identifiants</button>
+  <button onclick="window.print()" class="btn btn-ghost">🖨️ Imprimer</button>
+
+  <h3 style="margin-top:1.5rem;">Instructions pour l'élève</h3>
+  <ol>
+    <li>Se rendre sur <strong>{{ request.scheme }}://{{ request.get_host }}/</strong></li>
+    <li>Saisir l'identifiant et le mot de passe ci-dessus</li>
+    <li>Changer le mot de passe via "Mot de passe oublié" si besoin</li>
+  </ol>
+</div>
+
+<div class="action-bar">
+  <a href="{% url 'students:detail' student.pk %}" class="btn">Retour à la fiche élève</a>
+</div>
+
+<script>
+function copyAll() {
+  const text = `Identifiant : {{ user.username }}\nMot de passe : {{ password }}\nSite : {{ request.scheme }}://{{ request.get_host }}/`;
+  navigator.clipboard.writeText(text).then(() => alert('Copié dans le presse-papier'));
+}
+</script>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Portail famille{% endblock %} — {{ SITE_NAME }}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    .family-shell { min-height: 100vh; background: var(--peach); padding: 2rem 1rem 4rem; }
+    .family-shell .container { max-width: 880px; margin: 0 auto; }
+    .family-topbar {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 1.5rem; padding: .75rem 1.25rem;
+      background: var(--ink); color: var(--cream);
+      border-radius: 999px; border: 2px solid var(--ink);
+    }
+    .family-topbar .brand { font-weight: 800; font-family: 'Bricolage Grotesque', sans-serif; }
+    .family-topbar a { color: var(--cream); font-weight: 600; font-size: .9rem; }
+  </style>
+</head>
+<body>
+  <div class="family-shell">
+    <div class="container">
+      <div class="family-topbar">
+        <span class="brand">👨‍👩‍👧 {{ SITE_NAME }} · Famille</span>
+        {% if request.session.family_parent_email %}
+          <a href="{% url 'family:logout' %}">Quitter</a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Espace personnel</a>
+        {% endif %}
+      </div>
+
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+      </ul>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+</body>
+</html>

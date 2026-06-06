@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Répondre au RDV{% endblock %}
+{% block content %}
+<h1>📅 Rendez-vous proposé</h1>
+
+<div class="card alert-bridge">
+  <h2 style="margin-top:0;">{{ meeting.topic }}</h2>
+  <p><strong>📆 Date :</strong> {{ meeting.scheduled_at|date:"l d F Y" }}</p>
+  <p><strong>🕐 Heure :</strong> {{ meeting.scheduled_at|time:"H:i" }}</p>
+  <p><strong>⏱️ Durée :</strong> {{ meeting.duration_minutes }} minutes</p>
+  <p><strong>👤 Proposé par :</strong> {{ meeting.counselor.first_name|default:"Le conseiller" }}</p>
+</div>
+
+<div class="card">
+  <h2>Votre réponse</h2>
+  <form method="post" id="response-form">
+    {% csrf_token %}
+
+    <label>{{ form.action.label }}</label>
+    <div style="display:grid; gap:.5rem; margin: .75rem 0 1rem;">
+      {% for choice in form.action %}
+      <label style="display:flex; align-items:center; gap:.75rem; padding:.75rem; background:#fff; border:2px solid var(--ink); border-radius:.5rem; cursor:pointer;">
+        {{ choice.tag }}
+        <span style="font-weight:600;">{{ choice.choice_label }}</span>
+      </label>
+      {% endfor %}
+    </div>
+
+    <div id="alt-block" style="display:none;">
+      <label>{{ form.alternative_datetime.label }}</label>
+      {{ form.alternative_datetime }}
+      {% if form.alternative_datetime.help_text %}
+        <small class="muted">{{ form.alternative_datetime.help_text }}</small>
+      {% endif %}
+      {% if form.alternative_datetime.errors %}
+        <p style="color:var(--rose);font-weight:600;">{{ form.alternative_datetime.errors|join:" " }}</p>
+      {% endif %}
+    </div>
+
+    <label style="margin-top:1rem;">{{ form.message.label }}</label>
+    {{ form.message }}
+
+    {% if form.non_field_errors %}
+      <p style="color:var(--rose);font-weight:600;">{{ form.non_field_errors|join:" " }}</p>
+    {% endif %}
+
+    <button type="submit" class="btn" style="margin-top:1rem;">Envoyer ma réponse</button>
+  </form>
+</div>
+
+<div class="card card-flat">
+  <h3>💡 Que se passe-t-il ensuite ?</h3>
+  <ul>
+    <li><strong>Si vous acceptez :</strong> un salon vidéo sera disponible 10 min avant l'heure prévue.</li>
+    <li><strong>Si vous proposez une autre date :</strong> le conseiller vous recontactera pour confirmer.</li>
+    <li><strong>Si vous refusez :</strong> le conseiller en sera informé.</li>
+  </ul>
+</div>
+
+<script>
+// Affiche/masque le champ "date alternative" selon le choix
+document.addEventListener('DOMContentLoaded', function () {
+  const radios = document.querySelectorAll('input[name="action"]');
+  const altBlock = document.getElementById('alt-block');
+  function update() {
+    const sel = document.querySelector('input[name="action"]:checked');
+    altBlock.style.display = (sel && sel.value === 'propose_alternate') ? 'block' : 'none';
+  }
+  radios.forEach(r => r.addEventListener('change', update));
+  update();
+});
+</script>
+{% endblock %}

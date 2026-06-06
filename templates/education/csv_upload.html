@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Import CSV{% endblock %}
+{% block content %}
+<h1>Import CSV hebdomadaire</h1>
+<div class="card">
+  <p>Colonnes requises : <code>internal_code, week_start, absences, control_grade, previous_grade, behavioral_incident</code></p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Importer</button>
+  </form>
+</div>
+<p class="muted">Exemples : <code>samples/weekly_valid.csv</code> · <code>samples/weekly_invalid.csv</code></p>
+{% endblock %}

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Rappel Intervention</title></head>
+<body style="font-family: Arial; max-width: 600px; margin: 20px auto;">
+  <div style="background: #2563eb; color: white; padding: 20px;"><h1>📅 Rappel intervention</h1></div>
+  <div style="background: #f9fafb; padding: 20px;">
+    <p>Bonjour,</p>
+    <p>Vous avez une intervention planifiée :</p>
+    <ul>
+      <li><strong>Élève :</strong> {{ student.first_name }} {{ student.last_name }} ({{ student.class_name }})</li>
+      <li><strong>Type :</strong> {{ intervention.get_intervention_type_display }}</li>
+      <li><strong>Date :</strong> {{ intervention.planned_date }}</li>
+    </ul>
+    {% if intervention.notes %}<p><em>{{ intervention.notes }}</em></p>{% endif %}
+  </div>
+</body>
+</html>

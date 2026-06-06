@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Demande #{{ request_obj.pk }}{% endblock %}
+{% block content %}
+<h1>📋 {{ request_obj.subject }}</h1>
+
+<div class="card">
+  <p><strong>Élève :</strong> <a href="{% url 'students:detail' request_obj.student.pk %}">{{ request_obj.student }}</a></p>
+  <p><strong>Enseignant :</strong> {{ request_obj.teacher.get_full_name|default:request_obj.teacher.username }}</p>
+  <p><strong>Priorité :</strong> <span class="badge badge-{% if request_obj.priority == 'urgent' %}critical{% elif request_obj.priority == 'high' %}high{% else %}pending{% endif %}">{{ request_obj.get_priority_display }}</span></p>
+  <p><strong>Statut :</strong> <span class="badge badge-{% if request_obj.status == 'resolved' %}resolved{% elif request_obj.status == 'in_progress' %}pending{% else %}high{% endif %}">{{ request_obj.get_status_display }}</span></p>
+  <p class="muted">Créée le {{ request_obj.created_at|date:"d/m/Y à H:i" }}</p>
+  <hr style="margin: 1rem 0;">
+  <p style="white-space: pre-wrap">{{ request_obj.description }}</p>
+</div>
+
+{% if is_counselor and request_obj.status == 'pending' %}
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="take">
+    <button type="submit" class="btn btn-accent">✓ Prendre en charge</button>
+  </form>
+</div>
+{% endif %}
+
+{% if is_counselor and request_obj.status == 'in_progress' %}
+<div class="card">
+  <h3>💬 Répondre</h3>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="respond">
+    <textarea name="response" class="form-input" rows="5">{{ request_obj.response }}</textarea>
+    <button type="submit" class="btn">💾 Enregistrer</button>
+  </form>
+</div>
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="resolve">
+    <button type="submit" class="btn btn-accent">✓ Marquer comme résolue</button>
+  </form>
+</div>
+{% endif %}
+
+{% if request_obj.response %}
+<div class="card alert-bridge">
+  <h3>💬 Réponse</h3>
+  <p class="muted">Par {{ request_obj.assigned_to.get_full_name|default:"—" }}</p>
+  <p style="white-space: pre-wrap">{{ request_obj.response }}</p>
+</div>
+{% endif %}
+
+<p><a href="javascript:history.back()" class="btn btn-ghost">← Retour</a></p>
+{% endblock %}

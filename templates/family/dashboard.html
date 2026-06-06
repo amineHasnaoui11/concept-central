@@ -1,0 +1,58 @@
+{% extends "family/base_family.html" %}
+{% block content %}
+<div style="margin-bottom:1.25rem;">
+  <span class="eyebrow">Connecté en tant que parent</span>
+  <h1>Suivi de votre enfant</h1>
+  <p class="muted">{{ parent_email }}</p>
+</div>
+
+{% for s in summaries %}
+<div class="card">
+  <h2>{{ s.child.first_name }} {{ s.child.last_name }}</h2>
+  <p class="muted">Classe {{ s.child.class_name }} · {{ s.child.get_level_display }}</p>
+  <span class="badge {% if s.has_active_followup %}badge-pending{% else %}badge-resolved{% endif %}">
+    {% if s.has_active_followup %}Suivi en cours{% else %}Aucun suivi actif{% endif %}
+  </span>
+
+  <h3>📅 4 dernières semaines</h3>
+  {% if s.weeks_with_data %}
+    <p><strong>{{ s.total_absences_4w }}</strong> absence{{ s.total_absences_4w|pluralize }} sur {{ s.weeks_with_data }} semaine{{ s.weeks_with_data|pluralize }}.</p>
+  {% else %}
+    <p class="muted">Aucune saisie récente.</p>
+  {% endif %}
+
+  <h3>🤝 Contacts famille planifiés</h3>
+  {% if s.family_interventions %}
+  <table>
+    <tr><th>Date</th><th>État</th><th>Notes</th></tr>
+    {% for iv in s.family_interventions %}
+    <tr>
+      <td>{{ iv.planned_date }}</td>
+      <td>{% if iv.completed %}Réalisé{% else %}À venir{% endif %}</td>
+      <td>{{ iv.notes|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}<p class="muted">Aucun contact famille planifié.</p>{% endif %}
+
+  <h3>🗓️ Rendez-vous à venir</h3>
+  {% if s.upcoming_sessions %}
+  <ul class="timeline">
+    {% for sess in s.upcoming_sessions %}
+      <li><strong>{{ sess.scheduled_at|date:"d/m/Y H:i" }}</strong> — séance planifiée</li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted">Aucun rendez-vous prévu.</p>{% endif %}
+
+  {% if s.has_active_followup %}
+  <div class="alert-bridge">
+    <strong>Suivi en cours</strong> — pour toute question, contactez le conseiller scolaire.
+  </div>
+  {% endif %}
+</div>
+{% empty %}
+<div class="card"><p class="muted">Aucun élève rattaché à cet email.</p></div>
+{% endfor %}
+
+<p><a href="{% url 'family:logout' %}" class="btn btn-secondary">Se déconnecter</a></p>
+{% endblock %}

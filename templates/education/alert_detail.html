@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Alerte #{{ alert.pk }}{% endblock %}
+{% block content %}
+<h1>Alerte — {{ alert.student }}</h1>
+<p><span class="badge badge-{{ alert.level }}">{{ alert.get_level_display }}</span>
+   Score : {{ alert.risk_score }}/100 · {{ alert.get_status_display }}</p>
+<p>{{ alert.summary }}</p>
+
+{% if alert.suggests_psych_dossier and is_counselor %}
+<div class="alert-bridge card">
+  <strong>Pont éducation → santé mentale</strong>
+  <p>Le score dépasse le seuil critique. Ouverture d'un dossier psychologique recommandée.</p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="open_psych">
+    <button type="submit" class="btn btn-accent">Ouvrir un dossier psychologique</button>
+  </form>
+</div>
+{% endif %}
+
+{% if recommendation %}
+<div class="llm-disclaimer">{{ LLM_DISCLAIMER }}</div>
+<div class="card">
+  <h2>Recommandation d'intervention (IA)</h2>
+  <p><strong>Urgence :</strong> {{ recommendation.urgency }}</p>
+  <p>{{ recommendation.recommendation_text }}</p>
+  {% if recommendation.suggested_actions %}
+  <ul>{% for act in recommendation.suggested_actions %}<li>{{ act }}</li>{% endfor %}</ul>
+  {% endif %}
+  <p style="font-size:0.8rem;color:#5c6370">Modèle : {{ recommendation.model_used }} · Données anonymisées</p>
+</div>
+{% endif %}
+
+<div class="card">
+  <h3>Actions selon votre rôle</h3>
+  {% if is_counselor %}
+    {% if alert.status == 'pending' %}
+    <form method="post" style="display:inline">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="validate">
+      <button class="btn btn-accent">✓ Valider l'alerte</button>
+    </form>
+    {% elif alert.status == 'validated' %}
+    <p>✓ Alerte validée par vous · En attente de résolution par la direction</p>
+    {% elif alert.status == 'resolved' %}
+    <p>✓ Alerte résolue</p>
+    {% endif %}
+  {% endif %}
+
+  {% if is_admin %}
+    {% if alert.status == 'pending' %}
+    <p>⏳ En attente de validation par le conseiller</p>
+    {% elif alert.status == 'validated' %}
+    <form method="post" style="display:inline">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="resolve">
+      <button class="btn btn-accent">✓ Résoudre l'alerte</button>
+    </form>
+    {% elif alert.status == 'resolved' %}
+    <p>✓ Résolue le {{ alert.resolved_at|date:"d/m/Y à H:i" }}</p>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% if is_counselor and alert.status != 'resolved' %}
+<h2>Planifier une intervention</h2>
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="intervention">
+    {{ intervention_form.as_p }}
+    <button type="submit" class="btn">📅 Planifier</button>
+  </form>
+</div>
+{% endif %}
+
+{% if interventions %}
+<h2>Interventions</h2>
+<table>
+  <tr><th>Type</th><th>Date prévue</th><th>Réalisée</th><th>Efficacité</th><th></th></tr>
+  {% for i in interventions %}
+  <tr>
+    <td>{{ i.get_intervention_type_display }}</td>
+    <td>{{ i.planned_date }}</td>
+    <td>{% if i.completed %}✓{% else %}—{% endif %}</td>
+    <td>{{ i.get_effectiveness_rating_display }}</td>
+    <td>
+      {% if is_counselor %}
+      <a href="{% url 'education:intervention_outcome' i.pk %}" class="btn btn-ghost">Évaluer</a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

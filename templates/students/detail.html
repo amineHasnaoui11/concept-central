@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load l10n %}
+{% block title %}{{ student }}{% endblock %}
+{% block content %}
+<h1>{{ student.first_name }} {{ student.last_name }}</h1>
+<p>{{ student.class_name }} · {{ student.get_level_display }} · {{ student.age_approx }} ans</p>
+<p class="muted">Code interne : <code>{{ student.internal_code }}</code></p>
+
+{% if user.role == 'admin' %}
+<div class="action-bar">
+  <a href="{% url 'students:edit' student.pk %}" class="btn">Modifier</a>
+  <a href="{% url 'students:consents' student.pk %}" class="btn btn-accent">Gérer consentements</a>
+  <a href="{% url 'students:data_export' student.pk %}" class="btn btn-secondary">Export RGPD (JSON)</a>
+  <a href="{% url 'students:delete' student.pk %}" class="btn btn-danger">Supprimer</a>
+</div>
+{% endif %}
+
+{# === Section compte élève / invitation === #}
+{% if user.role == 'supervisor' or user.role == 'admin' %}
+<div class="card">
+  <h2>🔑 Compte de connexion élève</h2>
+  {% if student.user %}
+    <p>✓ Compte actif : <code>{{ student.user.username }}</code></p>
+    <p class="muted">Créé le {{ student.user.date_joined|date:"d/m/Y" }}.</p>
+    {% if student.user.email %}
+    <p class="muted">📧 Récupération via : {{ student.user.email }}</p>
+    {% endif %}
+  {% else %}
+    {% with valid_inv=student.invitations.first %}
+      {% if valid_inv and valid_inv.is_valid %}
+        <p>⏳ Invitation en attente : <code>{{ valid_inv.code }}</code></p>
+        <p class="muted">Expire le {{ valid_inv.expires_at|date:"d/m/Y H:i" }}.</p>
+        <form method="post" action="{% url 'accounts:invitation_revoke' valid_inv.pk %}" style="display:inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger" onclick="return confirm('Révoquer cette invitation ?')">Révoquer</button>
+        </form>
+        <a href="{% url 'accounts:invitation_generate' student.pk %}" class="btn btn-secondary">Générer un nouveau code</a>
+      {% else %}
+        <p class="muted">Aucun compte. L'élève peut créer son compte via une invitation.</p>
+        <a href="{% url 'accounts:invitation_generate' student.pk %}" class="btn btn-accent">🎟️ Générer une invitation</a>
+      {% endif %}
+    {% endwith %}
+  {% endif %}
+</div>
+{% endif %}
+
+{% if psych_blocked %}
+<div class="card" style="border-color:#c1121f">
+  <strong>🚫 Accès dossier psychologique refusé</strong> pour votre rôle.
+  {% if user.role == 'operator' and hidden_dossier_id %}
+  <p>Tentative d'accès via <a href="{% url 'wellbeing:dossier_detail' hidden_dossier_id %}">ce lien</a> sera bloquée et journalisée.</p>
+  {% endif %}
+</div>
+{% endif %}
+
+{% if dossier %}
+<div class="card alert-bridge">
+  <a href="{% url 'wellbeing:dossier_detail' dossier.pk %}" class="btn btn-accent">📋 Voir le dossier psychologique</a>
+</div>
+{% endif %}
+
+{% if student.has_family_contact %}
+<div class="card">
+  <h2>👨‍👩‍👧 Contact famille</h2>
+  <p><strong>Parent :</strong> {{ student.parent_full_name|default:"—" }}</p>
+  <p><strong>Email :</strong>
+    {% if student.parent_email %}<a href="mailto:{{ student.parent_email }}">{{ student.parent_email }}</a>{% else %}—{% endif %}
+  </p>
+  <p><strong>Téléphone :</strong>
+    {% if student.parent_phone %}<a href="tel:{{ student.parent_phone }}">{{ student.parent_phone }}</a>{% else %}—{% endif %}
+  </p>
+  <p><strong>Langue préférée :</strong> {{ student.get_parent_preferred_language_display }}</p>
+</div>
+{% endif %}
+
+{% if consents %}
+<div class="card card-flat">
+  <h3>Consentements parentaux</h3>
+  <table>
+    <tr><th>Type</th><th>Statut</th><th>Accordé par</th><th>Date</th></tr>
+    {% for c in consents %}
+    <tr>
+      <td>{{ c.get_consent_type_display }}</td>
+      <td>{% if c.granted %}<span class="badge badge-resolved">✓ Accordé</span>{% else %}<span class="badge badge-critical">✗ Refusé</span>{% endif %}</td>
+      <td>{{ c.granted_by|default:"—" }}</td>
+      <td>{{ c.granted_at|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<h2>Saisies récentes</h2>
+<table>
+  <tr><th>Semaine</th><th>Absences</th><th>Note</th><th>Score</th></tr>
+  {% for e in entries %}
+  <tr>
+    <td>{{ e.week_start }}</td>
+    <td>{% localize off %}{{ e.absences }}{% endlocalize %}</td>
+    <td>{{ e.control_grade|default:"—" }}</td>
+    <td>{% localize off %}{{ e.risk_score }}{% endlocalize %} ({{ e.risk_level }})</td>
+  </tr>
+  {% empty %}<tr><td colspan="4">Aucune saisie.</td></tr>{% endfor %}
+</table>
+
+<h2>Alertes</h2>
+<ul>
+  {% for a in alerts %}
+  <li><a href="{% url 'education:alert_detail' a.pk %}">{{ a.get_level_display }}</a> — {{ a.status }} ({{ a.created_at }})</li>
+  {% empty %}<li>Aucune alerte.</li>{% endfor %}
+</ul>
+{% endblock %}

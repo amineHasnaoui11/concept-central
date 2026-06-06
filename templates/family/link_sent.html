@@ -1,0 +1,14 @@
+{% extends "family/base_family.html" %}
+{% block content %}
+<div class="card">
+  <h1>📧 Vérifiez votre boîte mail</h1>
+  <p>Si l'adresse <strong>{{ email }}</strong> est associée à un élève, un lien d'accès a été envoyé.</p>
+  {% if dev_link %}
+  <div class="llm-disclaimer">
+    <strong>Mode développement</strong> :
+    <a href="{{ dev_link }}" class="btn btn-warn">Ouvrir le portail →</a>
+  </div>
+  {% endif %}
+  <p><a href="{% url 'family:request_access' %}">← Recommencer</a></p>
+</div>
+{% endblock %}

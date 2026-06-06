@@ -1,0 +1,52 @@
+{% load static i18n %}
+{% load notifications_tags %}
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+  {% if user.is_authenticated %}
+  <header class="topbar">
+    <span class="brand">{{ SITE_NAME }}</span>
+    <nav>
+      {% if user.role == 'student' %}
+        <a href="{% url 'meetings:student_dashboard' %}">{% trans "Mon espace" %}</a>
+        <a href="{% url 'meetings:list' %}">{% trans "Mes RDV" %}</a>
+      {% else %}
+        <a href="{% url 'dashboard' %}">{% trans "Tableau de bord" %}</a>
+        <a href="{% url 'students:list' %}">{% trans "Élèves" %}</a>
+        {% if user.role == 'operator' %}
+          <a href="{% url 'education:weekly_create' %}">{% trans "Saisie hebdo" %}</a>
+          <a href="{% url 'education:csv_upload' %}">{% trans "Import CSV" %}</a>
+        {% endif %}
+        {% if user.role == 'supervisor' or user.role == 'admin' %}
+          <a href="{% url 'education:alert_list' %}">{% trans "Alertes" %}</a>
+          <a href="{% url 'wellbeing:dossier_list' %}">{% trans "Dossiers psych." %}</a>
+          <a href="{% url 'meetings:list' %}">{% trans "RDV en ligne" %}</a>
+        {% endif %}
+        {% if user.role == 'admin' %}
+          <a href="{% url 'education:risk_config' %}">{% trans "Seuils" %}</a>
+          <a href="{% url 'compliance:dashboard' %}">{% trans "Conformité" %}</a>
+          <a href="{% url 'education:export_report' %}">{% trans "Export" %}</a>
+        {% endif %}
+      {% endif %}
+      {% notification_bell %}
+      <a href="{% url 'accounts:logout' %}">{% trans "Déconnexion" %} · {{ user.username }}</a>
+    </nav>
+  </header>
+  {% endif %}
+
+  <main class="container">
+    {% if messages %}
+    <ul class="messages">
+      {% for message in messages %}<li class="{{ message.tags }}">{{ message }}</li>{% endfor %}
+    </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

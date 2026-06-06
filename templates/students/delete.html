@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h1>{{ title }}</h1>
+<div class="card" style="border-color:#c1121f">
+  <p><strong>⚠️ Attention !</strong> Suppression de :</p>
+  <p><strong>{{ student.first_name }} {{ student.last_name }}</strong> ({{ student.class_name }})</p>
+  <p>Code interne : <code>{{ student.internal_code }}</code></p>
+  <p>Cette action est <strong>irréversible</strong> et supprimera toutes les données associées.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+    <a href="{% url 'students:detail' student.pk %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

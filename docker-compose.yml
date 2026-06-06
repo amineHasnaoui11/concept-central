@@ -1,0 +1,42 @@
+services:
+  web:
+    build: .
+    container_name: concept-central-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - sqlite_data:/app/data
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    environment:
+      - DATABASE_URL=sqlite:////app/data/db.sqlite3
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/accounts/login/').read()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # === Optionnel : PostgreSQL pour la production ===
+  # Décommentez ce bloc et changez DATABASE_URL dans .env pour utiliser Postgres
+  # db:
+  #   image: postgres:16-alpine
+  #   container_name: concept-central-db
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_DB: concept_central
+  #     POSTGRES_USER: django
+  #     POSTGRES_PASSWORD: changeme
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+
+volumes:
+  sqlite_data:
+  media_files:
+  static_files:
+  # postgres_data:

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Mes demandes{% endblock %}
+{% block content %}
+<h1>📋 Mes demandes d'aide</h1>
+<div class="action-bar">
+  <a href="{% url 'education:teacher_request_create' %}" class="btn">➕ Nouvelle demande</a>
+</div>
+
+{% if requests %}
+<table>
+  <tr><th>Élève</th><th>Objet</th><th>Priorité</th><th>Statut</th><th>Date</th><th></th></tr>
+  {% for req in requests %}
+  <tr>
+    <td><strong>{{ req.student }}</strong></td>
+    <td>{{ req.subject }}</td>
+    <td><span class="badge badge-{% if req.priority == 'urgent' %}critical{% elif req.priority == 'high' %}high{% else %}pending{% endif %}">{{ req.get_priority_display }}</span></td>
+    <td><span class="badge badge-{% if req.status == 'resolved' %}resolved{% elif req.status == 'in_progress' %}pending{% else %}high{% endif %}">{{ req.get_status_display }}</span></td>
+    <td>{{ req.created_at|date:"d/m/Y H:i" }}</td>
+    <td><a href="{% url 'education:teacher_request_detail' req.pk %}">Voir →</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card"><p class="muted">Aucune demande envoyée.</p></div>
+{% endif %}
+{% endblock %}

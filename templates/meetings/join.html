@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}RDV en cours{% endblock %}
+{% block content %}
+<style>
+  #jitsi-container {
+    width: 100%;
+    height: 75vh;
+    min-height: 500px;
+    border: 2px solid var(--ink);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+  }
+  .meeting-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+  .live-dot {
+    display: inline-block;
+    width: 10px; height: 10px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: pulse 1.5s infinite;
+    margin-right: .5rem;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+</style>
+
+<div class="meeting-bar">
+  <div>
+    <h1 style="margin:0;"><span class="live-dot"></span>{{ meeting.topic }}</h1>
+    <p class="muted" style="margin:.25rem 0 0;">
+      {% if is_counselor %}Avec {{ meeting.student.first_name }}{% else %}Avec {{ meeting.counselor.first_name|default:"votre conseiller" }}{% endif %}
+      · {{ meeting.scheduled_at|time:"H:i" }} → {{ meeting.end_time|time:"H:i" }}
+    </p>
+  </div>
+  <a href="{% url 'meetings:detail' meeting.pk %}" class="btn btn-secondary">Quitter le salon</a>
+</div>
+
+<div id="jitsi-container"></div>
+
+<div class="card card-flat" style="margin-top:1.5rem;">
+  <h3>💡 Aide</h3>
+  <ul>
+    <li><strong>Caméra / micro :</strong> autorisez l'accès quand votre navigateur le demande.</li>
+    <li><strong>Problème audio ?</strong> Cliquez sur l'icône micro en bas, ou rechargez la page.</li>
+    <li><strong>Partage d'écran :</strong> bouton dédié en bas (icône écran).</li>
+    <li><strong>Confidentialité :</strong> ce salon est privé. Seuls vous et votre interlocuteur y avez accès.</li>
+  </ul>
+</div>
+
+<script src="https://meet.jit.si/external_api.js"></script>
+<script>
+(function () {
+  const domain = 'meet.jit.si';
+  const options = {
+    roomName: 'concept-central-{{ meeting.room_token }}',
+    parentNode: document.getElementById('jitsi-container'),
+    width: '100%',
+    height: '100%',
+    userInfo: {
+      displayName: {{ display_name|escapejs|stringformat:'"%s"' }}
+    },
+    configOverwrite: {
+      prejoinPageEnabled: false,
+      startWithAudioMuted: false,
+      startWithVideoMuted: false,
+      disableInviteFunctions: true,
+      disableProfile: true,
+      enableClosePage: false,
+    },
+    interfaceConfigOverwrite: {
+      MOBILE_APP_PROMO: false,
+      SHOW_JITSI_WATERMARK: false,
+      SHOW_WATERMARK_FOR_GUESTS: false,
+      DISABLE_VIDEO_BACKGROUND: false,
+      HIDE_INVITE_MORE_HEADER: true,
+      TOOLBAR_BUTTONS: [
+        'microphone', 'camera', 'desktop', 'fullscreen',
+        'fodeviceselection', 'hangup', 'chat',
+        'settings', 'raisehand', 'videoquality', 'filmstrip', 'tileview'
+      ],
+    },
+  };
+
+  try {
+    const api = new JitsiMeetExternalAPI(domain, options);
+
+    api.addEventListener('readyToClose', () => {
+      window.location.href = "{% url 'meetings:detail' meeting.pk %}";
+    });
+  } catch (e) {
+    console.error('Erreur Jitsi:', e);
+    document.getElementById('jitsi-container').innerHTML =
+      '<div style="padding:2rem;text-align:center;"><p>❌ Impossible de charger le salon.</p><p>Vérifiez votre connexion internet et rechargez la page.</p></div>';
+  }
+})();
+</script>
+{% endblock %}

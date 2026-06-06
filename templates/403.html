@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Accès refusé{% endblock %}
+{% block content %}
+<div class="card">
+  <h1>🚫 Accès refusé</h1>
+  <p>{{ exception }}</p>
+  <p class="muted">Cette tentative a été enregistrée dans le journal d'audit.</p>
+  <a href="{% url 'dashboard' %}" class="btn">← Retour</a>
+</div>
+{% endblock %}

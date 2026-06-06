@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Bienvenue, {{ user.username }}</h1>
+<p>Votre rôle : <strong>{{ user.get_role_display }}</strong></p>
+{% endblock %}

@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Consentements — {{ student }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">RGPD · Loi 2004-63</span>
+    <h1>Consentements parentaux</h1>
+    <p class="muted">{{ student.first_name }} {{ student.last_name }} ({{ student.internal_code }})</p>
+  </div>
+  <a href="{% url 'students:detail' student.pk %}" class="btn btn-ghost">← Retour</a>
+</div>
+
+<div class="card">
+  <h2>Consentements enregistrés</h2>
+  {% if consents %}
+  <table>
+    <tr><th>Type</th><th>Statut</th><th>Par</th><th>Date</th></tr>
+    {% for c in consents %}
+    <tr>
+      <td>{{ c.get_consent_type_display }}</td>
+      <td>
+        {% if c.is_active %}
+          <span class="badge badge-resolved">✓ Actif</span>
+        {% else %}
+          <span class="badge badge-critical">✗ Révoqué</span>
+        {% endif %}
+      </td>
+      <td>{{ c.granted_by|default:"—" }}</td>
+      <td>{{ c.granted_at|default:"—" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">Aucun consentement enregistré.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Enregistrer un consentement</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Enregistrer</button>
+  </form>
+</div>
+{% endblock %}

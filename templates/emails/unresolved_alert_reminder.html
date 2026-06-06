@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><title>Rappel Alerte</title></head>
+<body style="font-family: Arial; max-width: 600px; margin: 20px auto;">
+  <div style="background: #f59e0b; color: white; padding: 20px;"><h1>⏰ Alerte non résolue</h1></div>
+  <div style="background: #f9fafb; padding: 20px;">
+    <p>L'alerte suivante n'est pas résolue depuis plus de 7 jours :</p>
+    <ul>
+      <li><strong>Élève :</strong> {{ student }}</li>
+      <li><strong>Score :</strong> {{ alert.risk_score }}/100</li>
+      <li><strong>Créée le :</strong> {{ alert.created_at|date:"d/m/Y" }}</li>
+    </ul>
+    <p><a href="{{ alert_url }}" style="background:#2563eb;color:#fff;padding:10px 20px;text-decoration:none;border-radius:5px;">Voir l'alerte</a></p>
+  </div>
+</body>
+</html>

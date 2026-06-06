@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Import en masse{% endblock %}
+{% block content %}
+<h1>📥 Import en masse d'élèves</h1>
+
+<div class="card">
+  <h3>Format CSV requis</h3>
+  <p>Colonnes obligatoires : <code>internal_code, first_name, last_name, birth_year, level, class_name</code></p>
+  <p>Colonnes optionnelles : <code>parent_full_name, parent_phone, parent_email</code></p>
+  <p class="muted">Les élèves avec un code existant seront mis à jour.</p>
+  <p>Valeurs pour <code>level</code> : <code>college</code> ou <code>lycee</code></p>
+</div>
+
+<div class="card">
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <label for="file">Fichier CSV</label>
+    <input type="file" name="file" id="file" accept=".csv" required>
+    <p>
+      <button type="submit" class="btn">Importer</button>
+      <a href="{% url 'students:list' %}" class="btn btn-ghost">Annuler</a>
+    </p>
+  </form>
+</div>
+
+<div class="card card-flat">
+  <h3>Exemple</h3>
+  <pre style="background:#fff; padding:1rem; border-radius:.5rem; overflow-x:auto;">internal_code,first_name,last_name,birth_year,level,class_name,parent_email
+TN-2025-100,Ahmed,Belhaj,2011,college,3A,parent@example.tn
+TN-2025-101,Maryam,Saidi,2010,college,2B,</pre>
+</div>
+{% endblock %}

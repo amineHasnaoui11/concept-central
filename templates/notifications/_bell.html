@@ -1,0 +1,16 @@
+<a href="{% url 'notifications:list' %}" class="notif-bell" title="Notifications" aria-label="Notifications">
+  🔔{% if unread %}<span class="notif-badge">{{ unread }}</span>{% endif %}
+</a>
+<style>
+  .notif-bell { position: relative; display: inline-flex; align-items: center; }
+  .notif-badge {
+    position: absolute; top: -6px; right: -10px;
+    background: #FF5C39; color: #fff;
+    border-radius: 999px;
+    font-size: .68rem; font-weight: 800;
+    padding: 1px 6px;
+    border: 2px solid #1A1A2E;
+    min-width: 18px; text-align: center;
+    line-height: 1.2;
+  }
+</style>

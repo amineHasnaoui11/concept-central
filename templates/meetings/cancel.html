@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Annuler le RDV{% endblock %}
+{% block content %}
+<h1>🚫 Annuler ce rendez-vous</h1>
+
+<div class="card alert-bridge">
+  <p><strong>RDV à annuler :</strong> {{ meeting.topic }}</p>
+  <p>📆 {{ meeting.scheduled_at|date:"l d F Y à H:i" }}</p>
+  <p>👤 Avec {{ meeting.counselor.first_name }}</p>
+</div>
+
+<div class="card" style="border-color: var(--rose);">
+  <p>⚠️ Vous êtes sur le point d'<strong>annuler</strong> ce rendez-vous.</p>
+  <p>Le conseiller sera notifié immédiatement. Vous pourrez en proposer un nouveau plus tard.</p>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-danger">Confirmer l'annulation</button>
+    <a href="{% url 'meetings:detail' meeting.pk %}" class="btn btn-ghost">Annuler (ne rien faire)</a>
+  </form>
+</div>
+{% endblock %}

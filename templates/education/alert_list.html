@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Alertes{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">{{ total }} alerte{{ total|pluralize }}</span>
+    <h1>Alertes de décrochage</h1>
+  </div>
+</div>
+
+<div class="card card-flat">
+  <form method="get" style="display:flex; flex-wrap:wrap; gap:.75rem; align-items:end;">
+    <div>
+      <label>Statut</label>
+      {{ form.status }}
+    </div>
+    <div>
+      <label>Niveau</label>
+      {{ form.level }}
+    </div>
+    <div>
+      <label>Recherche élève</label>
+      {{ form.q }}
+    </div>
+    <button type="submit" class="btn">🔍 Filtrer</button>
+    {% if request.GET %}<a href="{% url 'education:alert_list' %}" class="btn btn-ghost">Réinitialiser</a>{% endif %}
+  </form>
+</div>
+
+<table>
+  <tr><th>Élève</th><th>Niveau</th><th>Score</th><th>Statut</th><th>Date</th><th></th></tr>
+  {% for a in alerts %}
+  <tr>
+    <td>{{ a.student }}</td>
+    <td><span class="badge badge-{{ a.level }}">{{ a.get_level_display }}</span></td>
+    <td>{{ a.risk_score }}</td>
+    <td>{{ a.get_status_display }}</td>
+    <td>{{ a.created_at|date:"d/m/Y" }}</td>
+    <td><a href="{% url 'education:alert_detail' a.pk %}" class="btn btn-ghost">Détail</a></td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6"><em>Aucune alerte.</em></td></tr>
+  {% endfor %}
+</table>
+
+{% if page.has_other_pages %}
+<div class="pagination">
+  {% if page.has_previous %}
+    <a href="?page={{ page.previous_page_number }}">← Précédent</a>
+  {% endif %}
+  <span class="current">Page {{ page.number }} / {{ page.paginator.num_pages }}</span>
+  {% if page.has_next %}
+    <a href="?page={{ page.next_page_number }}">Suivant →</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

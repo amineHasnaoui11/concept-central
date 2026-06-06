@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Mes rendez-vous{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">{{ role_label }}</span>
+    <h1>Mes rendez-vous en ligne</h1>
+  </div>
+</div>
+
+{% if pending %}
+<h2>⏳ En attente</h2>
+<table>
+  <tr><th>Date</th><th>Sujet</th>{% if role_label != 'élève' %}<th>Élève</th>{% endif %}<th>Statut</th><th></th></tr>
+  {% for m in pending %}
+  <tr>
+    <td>{{ m.scheduled_at|date:"d/m/Y H:i" }}</td>
+    <td>{{ m.topic }}</td>
+    {% if role_label != 'élève' %}<td>{{ m.student }}</td>{% endif %}
+    <td><span class="badge badge-pending">{{ m.get_status_display }}</span></td>
+    <td><a href="{% url 'meetings:detail' m.pk %}" class="btn btn-ghost">Détail</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<h2>📅 À venir</h2>
+{% if upcoming %}
+<table>
+  <tr><th>Date</th><th>Sujet</th>{% if role_label != 'élève' %}<th>Élève</th>{% endif %}<th></th></tr>
+  {% for m in upcoming %}
+  <tr>
+    <td>{{ m.scheduled_at|date:"d/m/Y H:i" }}</td>
+    <td>{{ m.topic }}</td>
+    {% if role_label != 'élève' %}<td>{{ m.student }}</td>{% endif %}
+    <td>
+      {% if m.is_joinable_now %}
+      <a href="{% url 'meetings:join' m.pk %}" class="btn btn-accent">🎥 Rejoindre</a>
+      {% else %}
+      <a href="{% url 'meetings:detail' m.pk %}" class="btn btn-ghost">Détail</a>
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card card-flat"><p class="muted">Aucun rendez-vous à venir.</p></div>
+{% endif %}
+
+{% if past %}
+<h2>📋 Historique</h2>
+<table>
+  <tr><th>Date</th><th>Sujet</th>{% if role_label != 'élève' %}<th>Élève</th>{% endif %}<th>Statut</th></tr>
+  {% for m in past %}
+  <tr>
+    <td>{{ m.scheduled_at|date:"d/m/Y H:i" }}</td>
+    <td>{{ m.topic }}</td>
+    {% if role_label != 'élève' %}<td>{{ m.student }}</td>{% endif %}
+    <td>{{ m.get_status_display }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Tableau de bord conformité{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">RGPD · Loi 2004-63 (Tunisie)</span>
+    <h1>Conformité & protection des données</h1>
+    <p class="muted">Suivi des consentements, de la rétention et des accès.</p>
+  </div>
+</div>
+
+<div class="grid grid-3">
+  <div class="stat-card stat-coral">
+    <p class="stat-num">{{ students_without_consent }}</p>
+    <p class="stat-label">Élèves sans consentement</p>
+  </div>
+  <div class="stat-card stat-sun">
+    <p class="stat-num">{{ dossiers_expiring_soon|length }}</p>
+    <p class="stat-label">Rétention dans 30 jours</p>
+  </div>
+  <div class="stat-card stat-ink">
+    <p class="stat-num">{{ dossiers_expired|length }}</p>
+    <p class="stat-label">À archiver (dépassé)</p>
+  </div>
+</div>
+
+<div class="card">
+  <h2>📜 Statistiques de consentement</h2>
+  {% if consent_stats %}
+  <table>
+    <tr><th>Type</th><th>Statut</th><th>Nombre</th></tr>
+    {% for c in consent_stats %}
+    <tr>
+      <td>{{ c.consent_type }}</td>
+      <td>{% if c.granted %}<span class="badge badge-resolved">Accordé</span>{% else %}<span class="badge badge-critical">Refusé</span>{% endif %}</td>
+      <td>{{ c.count }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">Aucun consentement enregistré.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>🗄️ Dossiers à archiver bientôt</h2>
+  {% if dossiers_expiring_soon %}
+  <table>
+    <tr><th>Élève</th><th>Date rétention</th><th></th></tr>
+    {% for d in dossiers_expiring_soon %}
+    <tr>
+      <td>{{ d.student }}</td>
+      <td>{{ d.retention_until|date:"d/m/Y" }}</td>
+      <td><a href="{% url 'wellbeing:dossier_detail' d.pk %}" class="btn btn-ghost">Voir</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">Aucun dossier n'arrive à échéance.</p>
+  {% endif %}
+  <p class="muted">💡 Lancez : <code>python manage.py archive_expired_dossiers</code></p>
+</div>
+
+<div class="card">
+  <h2>📨 Demandes d'accès aux données</h2>
+  {% if pending_requests %}
+  <table>
+    <tr><th>Type</th><th>Élève</th><th>Demandeur</th><th>Date</th></tr>
+    {% for r in pending_requests %}
+    <tr>
+      <td>{{ r.get_request_type_display }}</td>
+      <td>{{ r.student }}</td>
+      <td>{{ r.requester_email }}</td>
+      <td>{{ r.created_at|date:"d/m/Y" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">Aucune demande en attente.</p>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>🚨 Tentatives d'accès refusées (30 derniers jours)</h2>
+  {% if recent_access_denied %}
+  <table>
+    <tr><th>Utilisateur</th><th>Élève concerné</th><th>Message</th><th>Date</th></tr>
+    {% for log in recent_access_denied %}
+    <tr>
+      <td>{{ log.user.username|default:"—" }}</td>
+      <td>{{ log.student|default:"—" }}</td>
+      <td>{{ log.message }}</td>
+      <td>{{ log.created_at|date:"d/m/Y H:i" }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p class="muted">Aucune tentative refusée récemment.</p>
+  {% endif %}
+</div>
+{% endblock %}

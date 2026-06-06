@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Évaluation intervention{% endblock %}
+{% block content %}
+<h1>📊 Évaluer l'intervention</h1>
+<div class="card">
+  <p><strong>{{ intervention.get_intervention_type_display }}</strong></p>
+  <p>Élève : {{ intervention.alert.student }}</p>
+  <p>Date prévue : {{ intervention.planned_date }}</p>
+  <p class="muted">{{ intervention.notes }}</p>
+</div>
+
+<div class="card">
+  <h2>Résultat</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Enregistrer</button>
+    <a href="{% url 'education:alert_detail' intervention.alert_id %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

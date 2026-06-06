@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% block title %}Créer mon compte élève{% endblock %}
+{% block content %}
+<div class="login-page">
+  <div class="login-card" style="max-width: 540px;">
+    <span class="login-eyebrow">Inscription élève</span>
+    <h1>Crée ton compte</h1>
+    <p class="login-sub">
+      Tu dois avoir reçu un <strong>code d'invitation</strong> de ton conseiller.
+      Saisis-le ci-dessous avec ton code élève.
+    </p>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}
+        <div class="messages"><ul class="messages"><li class="error">
+          {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+        </li></ul></div>
+      {% endif %}
+
+      {% for field in form %}
+      <div style="margin-bottom:1rem;">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}
+          <small class="muted" style="display:block;margin-top:.25rem;">{{ field.help_text }}</small>
+        {% endif %}
+        {% if field.errors %}
+          <p style="color:var(--rose);font-weight:600;font-size:.85rem;margin:.25rem 0 0;">
+            {% for error in field.errors %}{{ error }}{% endfor %}
+          </p>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn" style="width:100%;">Créer mon compte</button>
+    </form>
+
+    <p style="margin-top:1.5rem; text-align:center;">
+      Déjà un compte ? <a href="{% url 'accounts:login' %}">Se connecter</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

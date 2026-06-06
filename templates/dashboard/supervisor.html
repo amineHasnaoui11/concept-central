@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block title %}Espace conseiller{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Superviseur · Conseiller</span>
+    <h1>Alertes & dossiers</h1>
+    <p class="muted">Validez les alertes, planifiez les interventions, gérez les dossiers.</p>
+  </div>
+</div>
+
+<div class="card card-peach">
+  <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:1rem;">
+    <div>
+      <p class="stat-label" style="margin:0;">Dossiers ouverts</p>
+      <p style="font-family:'Bricolage Grotesque',sans-serif; font-size:2.5rem; font-weight:800; line-height:1; margin:.25rem 0 0;">
+        {{ open_dossiers }}
+      </p>
+    </div>
+    <div>
+      <a href="{% url 'education:alert_list' %}" class="btn">Voir les alertes</a>
+      <a href="{% url 'wellbeing:dossier_list' %}" class="btn btn-accent">Dossiers psych.</a>
+      <a href="{% url 'education:counselor_request_list' %}" class="btn btn-warn">Demandes enseignants</a>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <div class="chart-card">
+    <h2>Alertes par niveau</h2>
+    <canvas id="alertLevelChart" height="220"></canvas>
+  </div>
+  <div class="chart-card">
+    <h2>Interventions</h2>
+    <canvas id="interventionsChart" height="220"></canvas>
+  </div>
+</div>
+
+<h2>Alertes en attente</h2>
+{% if pending_alerts %}
+<table>
+  <tr><th>Élève</th><th>Niveau</th><th>Score</th><th>Pont psych.</th><th></th></tr>
+  {% for a in pending_alerts %}
+  <tr>
+    <td>{{ a.student }}</td>
+    <td><span class="badge badge-{{ a.level }}">{{ a.get_level_display }}</span></td>
+    <td>{{ a.risk_score }}</td>
+    <td>{% if a.suggests_psych_dossier %}Oui{% else %}—{% endif %}</td>
+    <td><a href="{% url 'education:alert_detail' a.pk %}" class="btn btn-ghost">Traiter</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card card-flat"><p class="muted" style="margin:0;">Aucune alerte en attente.</p></div>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+new Chart(document.getElementById('alertLevelChart').getContext('2d'), {
+  type: 'doughnut',
+  data: {
+    labels: {{ alert_levels|safe }},
+    datasets: [{
+      data: {{ alert_counts|safe }},
+      backgroundColor: ['#FFE34D', '#FF5C39', '#E63946'],
+      borderColor: '#1A1A2E', borderWidth: 2,
+    }]
+  },
+  options: { responsive: true, cutout: '55%' }
+});
+
+new Chart(document.getElementById('interventionsChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: ['Planifiées', 'Résolues'],
+    datasets: [{
+      data: [{{ interventions_planned }}, {{ interventions_resolved }}],
+      backgroundColor: ['#FF5C39', '#2EC4B6'],
+      borderColor: '#1A1A2E', borderWidth: 2, borderRadius: 8,
+    }]
+  },
+  options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

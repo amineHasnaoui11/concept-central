@@ -1,0 +1,4 @@
+internal_code,week_start,absences,control_grade,previous_grade,behavioral_incident,observation
+TN-2024-001,2024-09-23,4,8.5,14.0,true,Isolement en cour de récréation
+TN-2024-002,2024-09-23,1,12.0,12.5,false,
+TN-2024-003,2024-09-23,0,15.0,14.5,false,Participation active

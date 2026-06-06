@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Seuils de risque{% endblock %}
+{% block content %}
+<h1>Configuration des seuils</h1>
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Enregistrer</button>
+  </form>
+</div>
+{% endblock %}

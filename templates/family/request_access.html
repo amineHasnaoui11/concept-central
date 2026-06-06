@@ -1,0 +1,12 @@
+{% extends "family/base_family.html" %}
+{% block content %}
+<div class="card">
+  <h1 style="margin-top:0;">Accès parent</h1>
+  <p class="muted">Saisissez l'email enregistré par l'école. Vous recevrez un lien sécurisé (valable 15 minutes).</p>
+  <form method="post" novalidate>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Recevoir le lien</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Créer un accès élève{% endblock %}
+{% block content %}
+<h1>🔑 Créer un accès de connexion</h1>
+<div class="card">
+  <p>Vous êtes sur le point de créer un compte de connexion pour :</p>
+  <p><strong>{{ student.first_name }} {{ student.last_name }}</strong> ({{ student.internal_code }})</p>
+
+  <div class="llm-disclaimer" style="margin-top:1rem;">
+    ⚠️ Un mot de passe initial sera affiché <strong>une seule fois</strong>.
+    Notez-le ou imprimez-le pour le remettre à l'élève en main propre.
+    L'élève pourra ensuite le changer.
+  </div>
+
+  <form method="post" style="margin-top:1.5rem;">
+    {% csrf_token %}
+    <button type="submit" class="btn">✓ Créer le compte</button>
+    <a href="{% url 'students:detail' student.pk %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

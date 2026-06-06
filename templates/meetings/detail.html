@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}RDV — {{ meeting.scheduled_at|date:"d/m/Y H:i" }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">RDV en ligne</span>
+    <h1>{{ meeting.topic }}</h1>
+  </div>
+  <span class="badge badge-{% if meeting.status == 'approved' %}resolved{% elif meeting.status == 'proposed' %}pending{% elif meeting.status == 'rejected' or meeting.status == 'cancelled' %}critical{% else %}high{% endif %}">
+    {{ meeting.get_status_display }}
+  </span>
+</div>
+
+<div class="card">
+  <p><strong>📆 Date :</strong> {{ meeting.scheduled_at|date:"l d F Y à H:i" }}</p>
+  <p><strong>⏱️ Durée :</strong> {{ meeting.duration_minutes }} minutes</p>
+
+  {% if is_counselor %}
+    <p><strong>👤 Élève :</strong> {{ meeting.student }}</p>
+    {% if meeting.counselor_notes %}
+    <p><strong>📝 Notes internes :</strong></p>
+    <p style="white-space:pre-wrap;background:var(--peach);padding:.75rem;border-radius:.5rem;">{{ meeting.counselor_notes }}</p>
+    {% endif %}
+  {% endif %}
+
+  {% if is_student %}
+    <p><strong>👤 Conseiller :</strong> {{ meeting.counselor.first_name }} {{ meeting.counselor.last_name }}</p>
+  {% endif %}
+
+  {% if meeting.student_message %}
+    <p><strong>💬 Message de l'élève :</strong></p>
+    <p style="white-space:pre-wrap;font-style:italic;">{{ meeting.student_message }}</p>
+  {% endif %}
+
+  {% if meeting.student_alternative_proposal %}
+    <div class="alert-bridge" style="margin-top:1rem;">
+      <strong>📅 L'élève propose une autre date :</strong>
+      <p style="margin:.5rem 0 0; font-size:1.1rem;"><strong>{{ meeting.student_alternative_proposal|date:"l d F Y à H:i" }}</strong></p>
+      {% if is_counselor %}
+      <a href="{% url 'meetings:propose' meeting.dossier.pk %}?suggest={{ meeting.student_alternative_proposal|date:'Y-m-d\TH:i' }}" class="btn btn-accent" style="margin-top:.5rem;">
+        📅 Proposer un nouveau RDV à cette date
+      </a>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+
+{# ====== Actions selon statut + rôle ====== #}
+
+{% if meeting.status == 'proposed' and is_student %}
+<div class="card alert-bridge">
+  <h2>⏳ En attente de votre réponse</h2>
+  <a href="{% url 'meetings:respond' meeting.pk %}" class="btn">Approuver ou refuser</a>
+</div>
+{% endif %}
+
+{% if meeting.status == 'proposed' and is_counselor %}
+<div class="card card-flat">
+  <p class="muted">⏳ En attente de la réponse de l'élève.</p>
+</div>
+{% endif %}
+
+{% if meeting.status == 'approved' %}
+  {% if meeting.is_joinable_now %}
+  <div class="card" style="background: var(--turquoise); color:#fff; border-color: var(--turquoise-700);">
+    <h2 style="color:#fff; margin-top:0;">🟢 Le salon est ouvert !</h2>
+    <p>Cliquez pour rejoindre le rendez-vous vidéo.</p>
+    <a href="{% url 'meetings:join' meeting.pk %}" class="btn btn-warn" style="font-size:1.1rem;">
+      🎥 Rejoindre maintenant
+    </a>
+  </div>
+  {% elif meeting.is_upcoming %}
+  <div class="card card-peach">
+    <h2 style="margin-top:0;">⏰ RDV à venir</h2>
+    <p>Le salon ouvrira <strong>10 minutes avant l'heure prévue</strong>
+       ({{ meeting.access_open_at|date:"d/m/Y H:i" }}).</p>
+    <p class="muted">
+      ⏱️ Dans environ <strong>{{ meeting.minutes_until_start }} minute(s)</strong>.
+    </p>
+    {% if is_student %}
+    <a href="{% url 'meetings:student_cancel' meeting.pk %}" class="btn btn-danger" style="margin-top:.5rem;">
+      🚫 Annuler ce RDV
+    </a>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="card card-flat">
+    <p class="muted">⏰ Créneau terminé.</p>
+  </div>
+  {% endif %}
+{% endif %}
+
+{% if meeting.status == 'rejected' %}
+<div class="card" style="border-color: var(--rose);">
+  <p>❌ L'élève a refusé ce RDV.</p>
+</div>
+{% endif %}
+
+{% if meeting.status == 'cancelled' %}
+<div class="card card-flat">
+  <p class="muted">🚫 RDV annulé.</p>
+</div>
+{% endif %}
+
+{# ====== Annulation par le conseiller ====== #}
+{% if is_counselor and meeting.status in 'proposed,approved' %}
+<div class="card">
+  <h3>Actions conseiller</h3>
+  <form method="post" onsubmit="return confirm('Annuler ce RDV ?')">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="cancel">
+    <button type="submit" class="btn btn-danger">Annuler le RDV</button>
+  </form>
+</div>
+{% endif %}
+
+{# ====== Logs ====== #}
+{% if meeting.counselor_joined_at or meeting.student_joined_at %}
+<div class="card card-flat">
+  <h3>Connexions</h3>
+  {% if meeting.counselor_joined_at %}
+    <p>👤 Conseiller : rejoint le {{ meeting.counselor_joined_at|date:"d/m/Y à H:i:s" }}</p>
+  {% endif %}
+  {% if meeting.student_joined_at %}
+    <p>👤 Élève : rejoint le {{ meeting.student_joined_at|date:"d/m/Y à H:i:s" }}</p>
+  {% endif %}
+</div>
+{% endif %}
+
+<p><a href="{% url 'meetings:list' %}" class="btn btn-ghost">← Tous mes RDV</a></p>
+{% endblock %}

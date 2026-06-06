@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Proposer un RDV{% endblock %}
+{% block content %}
+<h1>📅 Proposer un rendez-vous en ligne</h1>
+
+<div class="card">
+  <p><strong>Élève :</strong> {{ dossier.student }}</p>
+  <p class="muted">Dossier #{{ dossier.pk }} · Ouvert le {{ dossier.created_at|date:"d/m/Y" }}</p>
+</div>
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <p class="muted" style="margin-top:1rem;">
+      💡 L'élève recevra une notification et un email pour approuver ou refuser.
+      Une fois approuvé, un salon vidéo sera disponible 10 min avant l'heure prévue.
+    </p>
+    <button type="submit" class="btn">Proposer le RDV</button>
+    <a href="{% url 'wellbeing:dossier_detail' dossier.pk %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

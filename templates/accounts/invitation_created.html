@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Invitation générée{% endblock %}
+{% block content %}
+<h1>✅ Invitation générée</h1>
+<div class="card">
+  <p>Invitation pour :</p>
+  <p><strong>{{ student.first_name }} {{ student.last_name }}</strong> ({{ student.internal_code }})</p>
+</div>
+
+<div class="card" style="border-color: var(--coral); background: var(--peach);">
+  <h2 style="margin-top:0;">🎟️ Code d'invitation — affiché une seule fois</h2>
+  <p>⚠️ <strong>Ce code ne sera plus affiché.</strong> Notez-le ou imprimez la page.</p>
+
+  <div style="background:#fff; padding:1.5rem; border:2px solid var(--ink); border-radius:.5rem; margin: 1rem 0; text-align:center;">
+    <p style="font-family:monospace; font-size:2rem; font-weight:800; letter-spacing:.1em; margin:0;">
+      <code id="invcode">{{ invitation.code }}</code>
+    </p>
+    <p class="muted" style="margin:.75rem 0 0;">
+      Valide jusqu'au <strong>{{ invitation.expires_at|date:"d/m/Y H:i" }}</strong> · utilisation unique
+    </p>
+  </div>
+
+  <button onclick="copyCode()" class="btn btn-secondary">📋 Copier le code</button>
+  <button onclick="window.print()" class="btn btn-ghost">🖨️ Imprimer</button>
+
+  <h3 style="margin-top:1.5rem;">📋 Instructions à donner à l'élève</h3>
+  <div style="background:#fff; padding:1.25rem; border-radius:.5rem; border:1px solid var(--border);">
+    <ol style="margin:0;">
+      <li>Va sur <strong>{{ signup_url }}</strong></li>
+      <li>Saisis ton <strong>code d'invitation</strong> : <code>{{ invitation.code }}</code></li>
+      <li>Saisis ton <strong>code élève</strong> : <code>{{ student.internal_code }}</code></li>
+      <li>Choisis un identifiant et un mot de passe (que tu seras seul à connaître)</li>
+      <li>Connecte-toi avec ces identifiants</li>
+    </ol>
+  </div>
+</div>
+
+<div class="action-bar">
+  <a href="{% url 'students:detail' student.pk %}" class="btn">Retour à la fiche élève</a>
+</div>
+
+<script>
+function copyCode() {
+  const code = document.getElementById('invcode').textContent.trim();
+  navigator.clipboard.writeText(code).then(() => alert('Code copié dans le presse-papier'));
+}
+</script>
+{% endblock %}

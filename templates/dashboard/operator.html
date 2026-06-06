@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Espace enseignant{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Opérateur · Enseignant</span>
+    <h1>Saisies & suivi hebdomadaire</h1>
+    <p class="muted">Notez absences, notes et observations comportementales chaque semaine.</p>
+  </div>
+</div>
+
+<div class="action-bar">
+  <a href="{% url 'education:weekly_create' %}" class="btn">＋ Nouvelle saisie</a>
+  <a href="{% url 'education:csv_upload' %}" class="btn btn-secondary">Import CSV</a>
+  <a href="{% url 'education:teacher_request_create' %}" class="btn btn-accent">Demander de l'aide</a>
+</div>
+
+<div class="grid grid-2">
+  <div class="stat-card stat-coral">
+    <p class="stat-num">{{ recent_alerts_count }}</p>
+    <p class="stat-label">Alertes générées</p>
+  </div>
+  <div class="stat-card stat-ink">
+    <p class="stat-num">→</p>
+    <p class="stat-label">
+      <a href="{% url 'education:teacher_request_list' %}" style="color: inherit; text-decoration: underline;">
+        Voir mes demandes d'aide
+      </a>
+    </p>
+  </div>
+</div>
+
+<div class="chart-card">
+  <h2>Évolution des notes moyennes</h2>
+  <canvas id="gradesChart" height="120"></canvas>
+</div>
+
+<div class="chart-card">
+  <h2>Absences par élève · Top 10</h2>
+  <canvas id="absencesChart" height="160"></canvas>
+</div>
+
+{% if recent_entries %}
+<h2>Dernières saisies</h2>
+<table>
+  <tr><th>Élève</th><th>Semaine</th><th>Score de risque</th></tr>
+  {% for e in recent_entries %}
+  <tr>
+    <td><a href="{% url 'students:detail' e.student_id %}">{{ e.student }}</a></td>
+    <td>{{ e.week_start }}</td>
+    <td>{{ e.risk_score }}/100 · {{ e.risk_level }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+const inkColor = '#1A1A2E';
+const coralColor = '#FF5C39';
+
+new Chart(document.getElementById('gradesChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: {{ weeks_labels|safe }},
+    datasets: [{
+      label: 'Note moyenne',
+      data: {{ avg_grades|safe }},
+      borderColor: coralColor,
+      backgroundColor: 'rgba(255, 92, 57, 0.15)',
+      borderWidth: 3, tension: 0.35,
+      pointBackgroundColor: inkColor, pointRadius: 5, fill: true,
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: { y: { beginAtZero: true, max: 20 } }
+  }
+});
+
+new Chart(document.getElementById('absencesChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: {{ students_absences|safe }},
+    datasets: [{
+      label: 'Absences',
+      data: {{ absences_counts|safe }},
+      backgroundColor: coralColor,
+      borderColor: inkColor, borderWidth: 2, borderRadius: 8,
+    }]
+  },
+  options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+</script>
+{% endblock %}

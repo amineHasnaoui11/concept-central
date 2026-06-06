@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Rapport Hebdomadaire</title>
+<style>
+  body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+  .container { max-width: 700px; margin: 0 auto; padding: 20px; }
+  .header { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 30px; }
+  .content { background: white; padding: 30px; border: 1px solid #e5e7eb; }
+  .stats { display: flex; gap: 15px; flex-wrap: wrap; margin: 20px 0; }
+  .stat { flex: 1; min-width: 150px; padding: 20px; text-align: center; background: #f9fafb; border-radius: 8px; }
+  .stat-value { font-size: 32px; font-weight: bold; color: #667eea; }
+  .button { display: inline-block; padding: 12px 24px; background: #667eea; color: white; text-decoration: none; border-radius: 6px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📊 Rapport Hebdomadaire</h1>
+      <p>{{ stats.period_start|date:"d/m/Y" }} → {{ stats.period_end|date:"d/m/Y" }}</p>
+    </div>
+    <div class="content">
+      <div class="stats">
+        <div class="stat"><div class="stat-value">{{ stats.total_alerts }}</div><div>Alertes créées</div></div>
+        <div class="stat"><div class="stat-value" style="color:#dc2626">{{ stats.critical_alerts }}</div><div>Critiques</div></div>
+        <div class="stat"><div class="stat-value" style="color:#059669">{{ stats.resolved_alerts }}</div><div>Résolues</div></div>
+      </div>
+      <h3>Activité</h3>
+      <ul>
+        <li><strong>{{ stats.weekly_entries }}</strong> saisies, dont <strong>{{ stats.high_risk_entries }}</strong> à risque élevé</li>
+        <li><strong>{{ stats.planned_interventions }}</strong> interventions planifiées, <strong>{{ stats.completed_interventions }}</strong> réalisées</li>
+        <li><strong>{{ stats.students_with_alerts }}</strong> élèves avec alerte sur <strong>{{ stats.total_students }}</strong> au total</li>
+      </ul>
+      {% if stats.old_unresolved_alerts %}
+      <p style="color:#dc2626"><strong>⚠️ {{ stats.old_unresolved_alerts }} alerte(s) non résolue(s) depuis >7 jours</strong></p>
+      {% endif %}
+      {% if stats.top_risk_students %}
+      <h3>Top 5 élèves à risque</h3>
+      <ul>{% for e in stats.top_risk_students %}<li>{{ e.student.first_name }} {{ e.student.last_name }} ({{ e.student.class_name }}) — score {{ e.risk_score }}</li>{% endfor %}</ul>
+      {% endif %}
+      <a href="{{ site_url }}/education/alertes/" class="button">Consulter le tableau de bord</a>
+    </div>
+  </div>
+</body>
+</html>

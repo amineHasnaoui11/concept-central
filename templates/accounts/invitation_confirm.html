@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Générer une invitation{% endblock %}
+{% block content %}
+<h1>🎟️ Générer une invitation</h1>
+<div class="card">
+  <p>Vous allez générer un code d'invitation pour :</p>
+  <p><strong>{{ student.first_name }} {{ student.last_name }}</strong> ({{ student.internal_code }})</p>
+
+  <div class="llm-disclaimer" style="margin-top:1rem;">
+    🔐 Le code sera affiché <strong>une seule fois</strong>. Il sera valide pendant 7 jours
+    et utilisable une seule fois. Remettez-le à l'élève en main propre (papier conseillé).
+  </div>
+
+  <h3>Ce qui se passera ensuite :</h3>
+  <ol>
+    <li>Vous remettez le code (et le code interne <code>{{ student.internal_code }}</code>) à l'élève.</li>
+    <li>L'élève se rend sur <strong>/inscription/</strong>.</li>
+    <li>Il saisit le code d'invitation + son code interne + choisit son propre identifiant et mot de passe.</li>
+    <li>Le compte est créé. Vous ne connaissez <em>jamais</em> son mot de passe.</li>
+  </ol>
+
+  <form method="post" style="margin-top:1.5rem;">
+    {% csrf_token %}
+    <button type="submit" class="btn">✓ Générer le code</button>
+    <a href="{% url 'students:detail' student.pk %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Centre de notifications</span>
+    <h1>Mes notifications</h1>
+  </div>
+  <div>
+    <a href="{% url 'notifications:list' %}" class="btn btn-ghost">Tout</a>
+    <a href="?filter=unread" class="btn btn-ghost">Non lues</a>
+    <form method="post" action="{% url 'notifications:mark_all_read' %}" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-secondary">Tout marquer comme lu</button>
+    </form>
+  </div>
+</div>
+
+{% if notifications %}
+<table>
+  <tr><th>Événement</th><th>Détails</th><th>Quand</th><th></th></tr>
+  {% for n in notifications %}
+  <tr {% if not n.read_at %}style="background: rgba(255, 92, 57, 0.06);"{% endif %}>
+    <td>{% if not n.read_at %}<strong>●</strong>{% endif %} {{ n.get_event_display }}</td>
+    <td>
+      <strong>{{ n.title }}</strong>
+      {% if n.message %}<br><span class="muted">{{ n.message }}</span>{% endif %}
+    </td>
+    <td>{{ n.created_at|date:"d/m/Y H:i" }}</td>
+    <td><a href="{% url 'notifications:open' n.pk %}" class="btn btn-ghost">{% if n.link %}Ouvrir →{% else %}Marquer lu{% endif %}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<div class="card card-flat">
+  <p class="muted" style="margin:0;">
+    {% if unread_only %}Aucune notification non lue.{% else %}Aucune notification.{% endif %}
+  </p>
+</div>
+{% endif %}
+{% endblock %}

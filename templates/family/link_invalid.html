@@ -1,0 +1,11 @@
+{% extends "family/base_family.html" %}
+{% block content %}
+<div class="card">
+  <h1>{% if used %}🔒 Lien déjà utilisé{% else %}⏱ Lien expiré{% endif %}</h1>
+  <p>
+    {% if used %}Ce lien a déjà servi. Chaque lien est à usage unique.
+    {% else %}Ce lien a expiré (validité : 15 min).{% endif %}
+  </p>
+  <a href="{% url 'family:request_access' %}" class="btn">Demander un nouveau lien</a>
+</div>
+{% endblock %}

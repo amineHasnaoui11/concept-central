@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block title %}Espace direction{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Admin · Direction</span>
+    <h1>Vue globale & pilotage</h1>
+    <p class="muted">Configurez les seuils, consultez les indicateurs et exportez les rapports.</p>
+  </div>
+</div>
+
+<div class="action-bar">
+  <a href="{% url 'education:risk_config' %}" class="btn">Configurer les seuils</a>
+  <a href="{% url 'compliance:dashboard' %}" class="btn btn-accent">Conformité RGPD</a>
+  <a href="{% url 'education:export_report' %}" class="btn btn-secondary">Exporter CSV</a>
+  <a href="/admin/" class="btn btn-ghost">Administration Django</a>
+</div>
+
+<div class="grid grid-4">
+  <div class="stat-card stat-coral">
+    <p class="stat-num">{{ student_count }}</p>
+    <p class="stat-label">Élèves</p>
+  </div>
+  <div class="stat-card stat-ink">
+    <p class="stat-num">{{ total_entries }}</p>
+    <p class="stat-label">Saisies</p>
+  </div>
+  <div class="stat-card stat-sun">
+    <p class="stat-num">{{ total_alerts }}</p>
+    <p class="stat-label">Alertes</p>
+  </div>
+  <div class="stat-card stat-turq">
+    <p class="stat-num">{{ open_dossiers }}</p>
+    <p class="stat-label">Dossiers psych.</p>
+  </div>
+</div>
+
+<div class="chart-card">
+  <h2>Alertes par classe · Top 10</h2>
+  <canvas id="classAlertsChart" height="160"></canvas>
+</div>
+
+<div class="chart-card">
+  <h2>Tendances · Score de risque moyen</h2>
+  <canvas id="riskTrendChart" height="120"></canvas>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+new Chart(document.getElementById('classAlertsChart').getContext('2d'), {
+  type: 'bar',
+  data: {
+    labels: {{ classes|safe }},
+    datasets: [{
+      label: 'Alertes',
+      data: {{ class_alert_counts|safe }},
+      backgroundColor: '#FF5C39',
+      borderColor: '#1A1A2E', borderWidth: 2, borderRadius: 8,
+    }]
+  },
+  options: { responsive: true, scales: { y: { beginAtZero: true } } }
+});
+
+new Chart(document.getElementById('riskTrendChart').getContext('2d'), {
+  type: 'line',
+  data: {
+    labels: {{ trend_weeks|safe }},
+    datasets: [{
+      label: 'Score moyen',
+      data: {{ trend_avg_risk|safe }},
+      borderColor: '#E63946',
+      backgroundColor: 'rgba(230, 57, 70, 0.15)',
+      borderWidth: 3, tension: 0.35, fill: true,
+    }]
+  },
+  options: { responsive: true, scales: { y: { beginAtZero: true, max: 100 } } }
+});
+</script>
+{% endblock %}

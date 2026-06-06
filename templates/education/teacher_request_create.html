@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Nouvelle demande{% endblock %}
+{% block content %}
+<h1>📨 Demander de l'aide au conseiller</h1>
+<p class="muted">Vous pouvez demander l'intervention d'un conseiller pour un élève en difficulté.</p>
+
+<div class="card">
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">📤 Envoyer</button>
+    <a href="{% url 'education:teacher_request_list' %}" class="btn btn-ghost">Annuler</a>
+  </form>
+</div>
+{% endblock %}

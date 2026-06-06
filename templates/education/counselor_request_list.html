@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Demandes reçues{% endblock %}
+{% block content %}
+<h1>📥 Demandes des enseignants</h1>
+
+<div class="grid grid-3">
+  <div class="stat-card stat-sun"><p class="stat-num">{{ pending.count }}</p><p class="stat-label">En attente</p></div>
+  <div class="stat-card stat-coral"><p class="stat-num">{{ in_progress.count }}</p><p class="stat-label">En cours</p></div>
+  <div class="stat-card stat-turq"><p class="stat-num">{{ resolved.count }}</p><p class="stat-label">Résolues</p></div>
+</div>
+
+<h2>⏳ En attente</h2>
+{% if pending %}
+<table>
+  <tr><th>Enseignant</th><th>Élève</th><th>Objet</th><th>Priorité</th><th>Date</th><th></th></tr>
+  {% for req in pending %}
+  <tr>
+    <td>{{ req.teacher.get_full_name|default:req.teacher.username }}</td>
+    <td><strong>{{ req.student }}</strong></td>
+    <td>{{ req.subject }}</td>
+    <td><span class="badge badge-{% if req.priority == 'urgent' %}critical{% elif req.priority == 'high' %}high{% else %}pending{% endif %}">{{ req.get_priority_display }}</span></td>
+    <td>{{ req.created_at|date:"d/m/Y H:i" }}</td>
+    <td><a href="{% url 'education:teacher_request_detail' req.pk %}" class="btn">Traiter</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}<div class="card"><p class="muted">Aucune demande en attente.</p></div>{% endif %}
+{% endblock %}
