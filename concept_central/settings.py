@@ -1,5 +1,5 @@
 """
-Concept Central - Configuration Django
+Sanad - Configuration Django
 Sécurité durcie, support multi-environnement, i18n FR/AR.
 """
 import os
@@ -237,7 +237,8 @@ DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "noreply@ecole.tn")
 
 # === Site ===
 SITE_URL = os.getenv("SITE_URL", "http://127.0.0.1:8000")
-SITE_NAME = os.getenv("SITE_NAME", "Concept Central")
+SITE_NAME = "Sanad"
+SITE_TAGLINE = "سند · Soutien éducatif et psychologique"
 
 
 # === Rate limiting ===

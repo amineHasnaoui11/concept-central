@@ -1,4 +1,4 @@
-# Concept Central
+# Sanad
 
 [![Python](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/django-5.0+-darkgreen.svg)](https://www.djangoproject.com/)

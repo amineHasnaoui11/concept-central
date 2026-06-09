@@ -11,7 +11,7 @@
 <body>
   {% if user.is_authenticated %}
   <header class="topbar">
-    <span class="brand">{{ SITE_NAME }}</span>
+    <span class="brand">{{ SITE_NAME }} <small style="font-size:0.7em; opacity:0.7; font-weight:normal;">سند</small></span>
     <nav>
       {% if user.role == 'student' %}
         <a href="{% url 'meetings:student_dashboard' %}">{% trans "Mon espace" %}</a>
